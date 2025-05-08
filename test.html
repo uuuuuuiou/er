@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سينما راب | مشاهدة الأفلام أونلاين</title>
+    <style>
+        /* التصميم العام */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        /* الهيدر */
+        header {
+            background: linear-gradient(135deg, #e50914, #b00710);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* شريط البحث */
+        .search-container {
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 0 1rem;
+        }
+        
+        #search {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* تصنيفات الأفلام */
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            padding: 1rem;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .category-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .category-btn.active, .category-btn:hover {
+            background-color: #e50914;
+        }
+        
+        /* قائمة الأفلام */
+        .movies-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .movie-card {
+            background: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 1rem;
+        }
+        
+        .movie-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* مشغل الفيديو */
+        .video-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .video-container {
+            width: 80%;
+            max-width: 1000px;
+            position: relative;
+        }
+        
+        .server-selection {
+            background: #222;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            width: 80%;
+            max-width: 1000px;
+        }
+        
+        .server-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+        
+        .server-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .server-btn.active, .server-btn:hover {
+            background: #e50914;
+        }
+        
+        .watch-progress {
+            width: 80%;
+            max-width: 1000px;
+            margin-top: 1rem;
+            background: #222;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #444;
+            margin-top: 0.5rem;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #e50914;
+            width: 0%;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        
+        #movie-player {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        /* الفوتر */
+        footer {
+            background-color: #111;
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        /* التجاوب مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .movies-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .movie-poster {
+                height: 220px;
+            }
+            
+            .video-container,
+            .server-selection,
+            .watch-progress {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الهيدر -->
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">سينما راب</a>
+            <div class="nav-links">
+                <a href="#" style="color: white; margin-left: 1rem;">الرئيسية</a>
+                <a href="#" style="color: white; margin-left: 1rem;">الأفلام</a>
+                <a href="#" style="color: white; margin-left: 1rem;">المسلسلات</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- شريط البحث -->
+    <div class="search-container">
+        <input type="text" id="search" placeholder="ابحث عن فيلم أو مسلسل...">
+    </div>
+    
+    <!-- تصنيفات الأفلام -->
+    <div class="categories">
+        <button class="category-btn active" data-category="all">الكل</button>
+        <button class="category-btn" data-category="action">أكشن</button>
+        <button class="category-btn" data-category="comedy">كوميدي</button>
+        <button class="category-btn" data-category="drama">دراما</button>
+        <button class="category-btn" data-category="horror">رعب</button>
+        <button class="category-btn" data-category="romance">رومانسي</button>
+        <button class="category-btn" data-category="sci-fi">خيال علمي</button>
+        <button class="category-btn" data-category="animation">كرتون</button>
+    </div>
+    
+    <!-- قائمة الأفلام -->
+    <div class="movies-container" id="movies">
+        <!-- الأفلام تضاف هنا بالجافاسكريبت -->
+    </div>
+    
+    <!-- مشغل الفيديو -->
+    <div class="video-overlay" id="videoOverlay">
+        <div class="server-selection">
+            <h3>اختر سيرفر المشاهدة:</h3>
+            <div class="server-btns" id="serverBtns">
+                <!-- تضاف أزرار السيرفرات هنا -->
+            </div>
+        </div>
+        
+        <div class="video-container">
+            <span class="close-btn" id="closeBtn">×</span>
+            <video id="movie-player" controls>
+                المتصفح لا يدعم تشغيل الفيديو
+            </video>
+        </div>
+        
+        <div class="watch-progress">
+            <h3>تقدم المشاهدة</h3>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="time-info">
+                <span id="currentTime">00:00:00</span>
+                <span id="duration">00:00:00</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- الفوتر -->
+    <footer>
+        <p>© سينما راب.</p>
+        <p></p>
+    </footer>
+    
+    <script>
+        // قاعدة بيانات الأفلام
+        const moviesData = [
+            {
+                id: 1,
+                title: "الملك الأسد",
+                poster: "https://image.tmdb.org/t/p/w500/1TUg5pO1VZ4B0Q1amk3OlXvlpXV.jpg",
+                year: 2019,
+                rating: 8.5,
+                duration: "1h 58m",
+                category: "animation",
+                description: "فيلم رسوم متحركة يحكي قصة سيمبا وصراعه من أجل العرش",
+                servers: [
+                    { name: "سيرفر 1", url: "https://example.com/videos/lionking-server1.mp4" },
+                    { name: "سيرفر 2", url: "https://example.com/videos/lionking-server2.mp4" },
+                    { name: "سيرفر 3", url: "https://example.com/videos/lionking-server3.mp4" }
+                ]
+            },
+            {
+                id: 2,
+                title: "تيتانيك",
+                poster: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
+                year: 1997,
+                rating: 9.0,
+                duration: "3h 14m",
+                category: "romance",
+                description: "قصة حب أسطورية على متن السفينة الأشهر في التاريخ",
+                servers: [
+                    { name: "سيرفر 1", url: "https://example.com/videos/titanic-server1.mp4" },
+                    { name: "سيرفر 2", url: "https://youtu.be/qbcSiSGLSbw?si=4ctwsjqCNy1YFxjr" }
+                ]
+            },
+            {
+                id: 3,
+                title: "المنتقمون: نهاية اللعبة",
+                poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
+                year: 2019,
+                rating: 8.9,
+                duration: "3h 1m",
+                category: "action",
+                description: "الجزء الأخير من ملحمة المنتقمين ضد ثانوس",
+                servers: [
+                    { name: "سيرفر 1", url: "https://example.com/videos/endgame-server1.mp4" },
+                    { name: "سيرفر 2", url: "https://example.com/videos/endgame-server2.mp4" },
+                    { name: "سيرفر 3", url: "https://example.com/videos/endgame-server3.mp4" }
+                ]
+            }
+        ];
+
+        // عناصر DOM
+        const moviesContainer = document.getElementById('movies');
+        const searchInput = document.getElementById('search');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const videoOverlay = document.getElementById('videoOverlay');
+        const moviePlayer = document.getElementById('movie-player');
+        const closeBtn = document.getElementById('closeBtn');
+        const serverBtns = document.getElementById('serverBtns');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        
+        // متغيرات المشاهدة
+        let currentMovie = null;
+        let watchInterval = null;
+
+        // عرض الأفلام
+        function displayMovies(movies) {
+            moviesContainer.innerHTML = '';
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <span>⭐ ${movie.rating}</span>
+                            <span>${movie.duration}</span>
+                        </div>
+                    </div>
+                `;
+                
+                movieCard.addEventListener('click', () => openMoviePlayer(movie));
+                moviesContainer.appendChild(movieCard);
+            });
+        }
+
+        // فتح مشغل الفيديو
+        function openMoviePlayer(movie) {
+            currentMovie = movie;
+            videoOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // عرض خيارات السيرفرات
+            updateServerButtons(movie.servers);
+            
+            // تشغيل السيرفر الأول افتراضيًا
+            if (movie.servers.length > 0) {
+                playMovie(movie.servers[0].url);
+            }
+        }
+
+        // تحديث أزرار السيرفرات
+        function updateServerButtons(servers) {
+            serverBtns.innerHTML = '';
+            
+            servers.forEach((server, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'server-btn' + (index === 0 ? ' active' : '');
+                btn.textContent = server.name;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    playMovie(server.url);
+                });
+                serverBtns.appendChild(btn);
+            });
+        }
+
+        // تشغيل الفيديو
+        function playMovie(url) {
+            moviePlayer.src = url;
+            moviePlayer.load();
+            moviePlayer.play();
+            
+            // بدء تتبع التقدم
+            startTrackingProgress();
+        }
+
+        // بدء تتبع تقدم المشاهدة
+        function startTrackingProgress() {
+            // إلغاء أي متتبع سابق
+            if (watchInterval) clearInterval(watchInterval);
+            
+            // تحديث المعلومات مباشرة
+            updateProgress();
+            
+            // تحديث المعلومات كل ثانية
+            watchInterval = setInterval(updateProgress, 1000);
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress() {
+            if (moviePlayer.readyState > 0) {
+                const duration = moviePlayer.duration;
+                const currentTime = moviePlayer.currentTime;
+                const progressPercent = (currentTime / duration) * 100;
+                
+                progressBar.style.width = progressPercent + '%';
+                
+                currentTimeEl.textContent = formatTime(currentTime);
+                durationEl.textContent = formatTime(duration);
+            }
+        }
+
+        // تنسيق الوقت
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            
+            return [
+                h.toString().padStart(2, '0'),
+                m.toString().padStart(2, '0'),
+                s.toString().padStart(2, '0')
+            ].join(':');
+        }
+
+        // إغلاق مشغل الفيديو
+        function closeVideo() {
+            moviePlayer.pause();
+            moviePlayer.currentTime = 0;
+            videoOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // إيقاف متتبع التقدم
+            if (watchInterval) clearInterval(watchInterval);
+        }
+
+        // تصفية الأفلام حسب التصنيف
+        function filterMovies(category) {
+            if (category === 'all') {
+                displayMovies(moviesData);
+                return;
+            }
+            
+            const filteredMovies = moviesData.filter(movie => movie.category === category);
+            displayMovies(filteredMovies);
+        }
+
+        // البحث عن الأفلام
+        function searchMovies(query) {
+            const filteredMovies = moviesData.filter(movie => 
+                movie.title.toLowerCase().includes(query) || 
+                movie.description.toLowerCase().includes(query)
+            );
+            displayMovies(filteredMovies);
+        }
+
+        // أحداث المستخدم
+        searchInput.addEventListener('input', (e) => {
+            searchMovies(e.target.value.toLowerCase());
+        });
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterMovies(btn.dataset.category);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeVideo);
+
+        // إغلاق الفيديو عند الضغط على ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeVideo();
+            }
+        });
+
+        // تحديث التقدم عند تغيير وقت الفيديو
+        moviePlayer.addEventListener('timeupdate', updateProgress);
+
+        // عرض جميع الأفلام عند تحميل الصفحة
+        displayMovies(moviesData);
+    </script>
+</body>
+</html>
